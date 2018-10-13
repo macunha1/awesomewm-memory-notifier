@@ -1,0 +1,1 @@
+/home/macunha1/.config/awesome/plugins/memory/memory.lua
