@@ -43,7 +43,7 @@ function memory:show()
             self.status_tpl:format("%06.3f\tMB \n") ..
             '<b><span color="' .. self.fg_normal .. '">Total:</span></b>\t' ..
             self.status_tpl:format("%.3f\tGB \n"),
-            used/1024, free/1024, used_swap, total/1024
+            used/1048576, free/1048576, used_swap/1024, total/1048576 -- 1048576 = 1024 * 1024 (since free prints in kB)
             )
             local mem_text = self.html:format(mem_display)
 
