@@ -36,14 +36,16 @@ function memory:show()
 
             local mem_display = string.format(
             '<b><span color="' .. self.fg_normal .. '">Used:</span></b>\t' ..
-            self.status_tpl:format("%.3f\tGB \n") ..
+            self.status_tpl:format("%.3f\tGB\n") ..
+            '<b><span color="' .. self.fg_normal .. '">Buff:</span></b>\t' ..
+            self.status_tpl:format("%.3f\tGB\n") ..
             '<b><span color="' .. self.fg_normal .. '">Free:</span></b>\t' ..
-            self.status_tpl:format("%.3f\tGB \n") ..
+            self.status_tpl:format("%.3f\tGB\n") ..
             '<b><span color="' .. self.fg_normal .. '">Swap:</span></b>\t' ..
-            self.status_tpl:format("%06.3f\tMB \n") ..
+            self.status_tpl:format("%06.3f\tMB\n\n") ..
             '<b><span color="' .. self.fg_normal .. '">Total:</span></b>\t' ..
-            self.status_tpl:format("%.3f\tGB \n"),
-            used/1048576, free/1048576, used_swap/1024, total/1048576 -- 1048576 = 1024 * 1024 (since free prints in kB)
+            self.status_tpl:format("%.3f\tGB"),
+            used/1048576, buff_cache/1048576, free/1048576, used_swap/1024, total/1048576 -- 1048576 = 1024 * 1024 (since free prints in kB)
             )
             local mem_text = self.html:format(mem_display)
 
