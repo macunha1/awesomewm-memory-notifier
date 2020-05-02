@@ -1,26 +1,26 @@
 # AwesomeWM Memory Notifier plug-in
 ---
 
-Simple and minimalistic memory (RAM) popup notifier for Awesome window manager.
+Simple and minimalistic Memory (RAM) notifier for AwesomeWM.
 
 ![Screenshot](/screenshot.png?raw=true "Screenshot")
 
-This plugin was adapted from [deficient/calendar](https://github.com/deficient/calendar.git),
-which is based on `calendar2.lua` module by Bernd Zeimetz and Marc Dequènes.
+RAM notifier plugin code initially was based on [deficient/calendar](https://github.com/deficient/calendar.git),
+later Lain came in place to render markup easily.
 
 ### Installation
 
-Drop the script into your awesome config folder. Suggestion:
+Drop the plugin code into your AwesomeWM config folder. e.g.:
 
 ```bash
-[ ! -d ~/.config/awesome/plugins ] && mkdir ~/.config/awesome/plugins
+[[ -d ~/.config/awesome/plugins ]] || mkdir ~/.config/awesome/plugins
 cd ~/.config/awesome/plugins
 git clone https://github.com/macunha1/awesomewm-memory-notifier ~/.config/awesome/plugins/memory-notifier
 ```
 
 ### Usage
 
-In your `rc.lua`:
+And then import the plugin into your `rc.lua`:
 
 ```lua
 -- load the widget code
