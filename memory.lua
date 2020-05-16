@@ -5,10 +5,11 @@ local capi = {
     mouse = mouse,
     screen = screen
 }
-local awful = require("awful")
+local awful   = require("awful")
+local lain    = require("lain")
 local naughty = require("naughty")
 
-Memory = {}
+local Memory = {}
 Memory.__index = Memory
 
 function Memory:new(args)
@@ -16,11 +17,10 @@ function Memory:new(args)
 end
 
 function Memory:init(args)
-    self.num_lines = 0
-    self.fg_normal = args.fg_normal or "#bbbbbb"
-    self.fg_color = args.fg_color or "#00ff00"
-    self.html = args.html or '<span font_desc="monospace">\n%s</span>'
-    self.status_tpl = args.status_tpl or '<span color="' .. self.fg_color .. '">%s</span>'
+    self.fg_normal  = args.fg_normal or "#ffffff"
+    self.fg_color   = args.fg_color or "#00ff00"
+    self.font       = args.font or "monospace"
+
     return self
 end
 
@@ -32,7 +32,7 @@ function Memory:fmt(free_stdout)
     -- Mem:        1006536       69664      845824         428       91048      819760
     -- Swap:       2013180           0     2013180
 
-    mem_table["Total"],
+    mem_table["\nTotal"],
         mem_table["Used"],
         mem_table["Free"],
         mem_table["Shared"],
@@ -43,15 +43,36 @@ function Memory:fmt(free_stdout)
         mem_table["Swap Free"] =
         free_stdout:match("(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*Swap:%s*(%d+)%s*(%d+)%s*(%d+)")
 
+    local display_order = {
+        "Used",
+        "Buff",
+        "Free",
+        "\nTotal",
+    }
     local t = {}
-    for key, value in pairs(mem_table) do
-        table.insert(t, '<b><span color="')
-        table.insert(t, self.fg_normal)
-        table.insert(t, '">')
-        table.insert(t, key)
-        table.insert(t, ":</span></b>\t")
+
+    for _, key in ipairs(display_order) do
+        table.insert(
+            t,
+            lain.util.markup.fontfg(
+                self.font,
+                self.fg_normal,
+                lain.util.markup.bold(key .. ":\t")
+            )
+        )
+
         -- 1 GB = 1048576 = 1024 * 1024 (since free prints in kB)
-        table.insert(t, string.format(self.status_tpl:format("%.3f\tGB\n"), value / 1048576))
+        table.insert(
+            t,
+            lain.util.markup.fontfg(
+                self.font,
+                self.fg_color,
+                string.format(
+                    "%.3f\t<b>GB</b>",
+                    mem_table[key] / 1048576
+                )
+            ) .. "\n"
+        )
     end
 
     return table.concat(t)
@@ -61,24 +82,22 @@ function Memory:show()
     awful.spawn.easy_async(
         [[ bash -c "free | grep -z Mem.*Swap.*" ]],
         function(stdout, stderr, reason, exit_code)
-            local mem_text = self.html:format(Memory:fmt(stdout))
-            local num_lines = select(2, mem_text:gsub("\n", ""))
+            local mem_text = lain.util.markup.font(
+                self.font,
+                "\n" .. self:fmt(stdout)
+            )
 
             if naughty.replace_text and self.notification then
                 naughty.replace_text(self.notification, title, mem_text)
             else
                 self:hide()
-                self.notification =
-                    naughty.notify(
-                    {
-                        title = "Memory status",
-                        text = mem_text,
-                        timeout = 0,
-                        hover_timeout = 0.5,
-                        screen = capi.mouse.screen
-                    }
-                )
-                self.num_lines = num_lines
+                self.notification = naughty.notify({
+                    title = "Memory status",
+                    text = mem_text,
+                    timeout = 0,
+                    hover_timeout = 0.5,
+                    screen = capi.mouse.screen
+                })
             end
         end
     )
@@ -88,7 +107,6 @@ function Memory:hide()
     if self.notification then
         naughty.destroy(self.notification)
         self.notification = nil
-        self.num_lines = 0
     end
 end
 
