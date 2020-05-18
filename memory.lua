@@ -82,19 +82,24 @@ function Memory:show()
     awful.spawn.easy_async(
         [[ bash -c "free | grep -z Mem.*Swap.*" ]],
         function(stdout, stderr, reason, exit_code)
+            local title = "Memory status"
             local mem_text = lain.util.markup.font(
                 self.font,
                 "\n" .. self:fmt(stdout)
             )
 
             if naughty.replace_text and self.notification then
-                naughty.replace_text(self.notification, title, mem_text)
+                naughty.replace_text(
+                    self.notification,
+                    title,
+                    mem_text
+                )
             else
                 self:hide()
                 self.notification = naughty.notify({
-                    title = "Memory status",
+                    title = title,
                     text = mem_text,
-                    timeout = 0,
+                    timeout = 2,
                     hover_timeout = 0.5,
                     screen = capi.mouse.screen
                 })
@@ -111,31 +116,17 @@ function Memory:hide()
 end
 
 function Memory:attach(widget)
-    widget:connect_signal(
-        "mouse::enter",
-        function()
-            self:show()
-        end
-    )
+    local show = function()
+        self:show()
+    end
 
-    widget:connect_signal(
-        "mouse::leave",
-        function()
-            self:hide()
-        end
-    )
+    local hide = function()
+        self:hide()
+    end
 
-    widget:buttons(
-        awful.util.table.join(
-            awful.button(
-                {},
-                1,
-                function()
-                    self:show()
-                end
-            )
-        )
-    )
+    widget:connect_signal("mouse::enter", show)
+    widget:connect_signal("mouse::leave", hide)
+    widget:buttons(awful.util.table.join(awful.button({}, 1, show)))
 end
 
 return setmetatable(
